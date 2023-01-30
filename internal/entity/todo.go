@@ -1,4 +1,4 @@
-package todo_restAPI
+package entity
 
 type TodoList struct {
 	Id          int    `json:"id"`
