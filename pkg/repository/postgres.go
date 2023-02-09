@@ -5,10 +5,11 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// constants for strings to work with database(postgres)
 const (
 	usersTable      = "users"
 	todoListsTable  = "todo_lists"
-	usersListsTable = "users_lists"
+	usersListsTable = "users_list"
 	todoItemsTable  = "todo_items"
 	listsItemsTable = "lists_items"
 )

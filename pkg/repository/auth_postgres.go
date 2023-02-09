@@ -2,7 +2,7 @@ package repository
 
 import (
 	"fmt"
-	"github.com/deevins/todo-restAPI/internal/entity"
+	"github.com/deevins/todo-restAPI/internal/entities"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -23,4 +23,14 @@ func (r *AuthPostgres) CreateUser(user entity.User) (int, error) {
 		return 0, err
 	}
 	return id, nil
+}
+
+func (r *AuthPostgres) GetUser(username, password string) (entity.User, error) {
+	var user entity.User
+
+	query := fmt.Sprintf("SELECT id FROM %s WHERE username=$1 AND password_hash=$2", usersTable)
+
+	err := r.db.Get(&user, query, username, password)
+
+	return user, err
 }

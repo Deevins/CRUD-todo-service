@@ -12,6 +12,8 @@ import (
 	"os"
 )
 
+// TODO: change logrus lib to uber logger(zap)
+// https://github.com/uber-go/zap
 func main() {
 	logrus.SetFormatter(&logrus.JSONFormatter{PrettyPrint: true})
 	if err := initConfig(); err != nil {
