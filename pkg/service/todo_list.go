@@ -26,3 +26,15 @@ func (s *TodoListService) GetAll(userID int) ([]entity.TodoList, error) {
 func (s *TodoListService) GetByID(userID, listID int) (entity.TodoList, error) {
 	return s.rep.GetByID(userID, listID)
 }
+
+func (s *TodoListService) Delete(userID, listID int) error {
+	return s.rep.Delete(userID, listID)
+}
+
+func (s *TodoListService) Update(userID, listID int, input entity.UpdateListInput) error {
+	if err := input.Validate(); err != nil {
+		return err
+	}
+
+	return s.rep.Update(userID, listID, input)
+}

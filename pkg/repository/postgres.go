@@ -5,7 +5,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// constants for strings to work with database(postgres)
+// constants for strings to work with database tables(postgres)
 const (
 	usersTable      = "users"
 	todoListsTable  = "todo_lists"

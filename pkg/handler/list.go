@@ -71,6 +71,55 @@ func (h *Handler) getListById(ctx *gin.Context) {
 
 }
 
-func (h *Handler) deleteList(ctx *gin.Context) {}
+func (h *Handler) deleteList(ctx *gin.Context) {
+	userID, err := getUserID(ctx)
+	if err != nil {
+		return
+	}
 
-func (h *Handler) updateList(ctx *gin.Context) {}
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		NewErrorResponse(ctx, http.StatusInternalServerError, "invalid id param")
+	}
+
+	err = h.services.TodoList.Delete(userID, id)
+	if err != nil {
+		NewErrorResponse(ctx, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	ctx.JSON(http.StatusOK, statusResponse{
+		Status: "ok",
+	})
+
+}
+
+func (h *Handler) updateList(ctx *gin.Context) {
+	userID, err := getUserID(ctx)
+	if err != nil {
+		return
+	}
+
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		NewErrorResponse(ctx, http.StatusInternalServerError, "invalid id param")
+		return
+	}
+
+	var input entity.UpdateListInput
+
+	if err := ctx.BindJSON(&input); err != nil {
+		NewErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := h.services.TodoList.Update(userID, id, input); err != nil {
+		NewErrorResponse(ctx, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	ctx.JSON(http.StatusOK, statusResponse{
+		Status: "ok",
+	})
+
+}
