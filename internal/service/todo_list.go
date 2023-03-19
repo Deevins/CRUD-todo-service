@@ -2,7 +2,7 @@ package service
 
 import (
 	entity "github.com/deevins/todo-restAPI/internal/entities"
-	"github.com/deevins/todo-restAPI/pkg/repository"
+	"github.com/deevins/todo-restAPI/internal/repository"
 )
 
 type TodoListService struct {

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	entity "github.com/deevins/todo-restAPI/internal/entities"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -59,6 +60,8 @@ func (h *Handler) getListById(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		NewErrorResponse(ctx, http.StatusInternalServerError, "invalid id param")
+		fmt.Println("error in getListById ", id, err)
+		return
 	}
 
 	list, err := h.services.TodoList.GetByID(userID, id)

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/deevins/todo-restAPI/internal/entities"
-	"github.com/deevins/todo-restAPI/pkg/repository"
+	"github.com/deevins/todo-restAPI/internal/repository"
 	"github.com/golang-jwt/jwt/v4"
 	"os"
 	"time"

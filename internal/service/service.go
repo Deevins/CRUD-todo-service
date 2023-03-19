@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/deevins/todo-restAPI/internal/entities"
-	"github.com/deevins/todo-restAPI/pkg/repository"
+	"github.com/deevins/todo-restAPI/internal/repository"
 )
 
 type Authorization interface {
@@ -20,6 +20,9 @@ type TodoList interface {
 }
 
 type TodoItem interface {
+	Create(userID, listID int, item entity.TodoItem) (int, error)
+	GetAll(userID, listID int) ([]entity.TodoItem, error)
+	GetItemByID(userID, itemID int) (entity.TodoItem, error)
 }
 
 type Service struct {
@@ -32,5 +35,6 @@ func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Authorization: NewAuthService(repos.Authorization),
 		TodoList:      NewTodoListService(repos.TodoList),
+		TodoItem:      NewTodoItemService(repos.TodoItem, repos.TodoList),
 	}
 }

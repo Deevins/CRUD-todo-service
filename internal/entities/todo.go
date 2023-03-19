@@ -9,10 +9,10 @@ type TodoList struct {
 }
 
 type TodoItem struct {
-	Id          int    `json:"Id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Done        bool   `json:"done"`
+	Id          int    `json:"id" db:"id"`
+	Title       string `json:"title" db:"title" binding:"required"`
+	Description string `json:"description" db:"description"`
+	Done        bool   `json:"done" db:"done"`
 }
 
 type UserList struct {
@@ -30,7 +30,7 @@ type ListItem struct {
 type UpdateListInput struct {
 	Title       *string `json:"title"`
 	Description *string `json:"description"`
-} //2:28
+}
 
 func (i *UpdateListInput) Validate() error {
 	if i.Title == nil && i.Description == nil {

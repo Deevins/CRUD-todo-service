@@ -2,9 +2,9 @@ package main
 
 import (
 	todoserver "github.com/deevins/todo-restAPI"
-	"github.com/deevins/todo-restAPI/pkg/handler"
-	"github.com/deevins/todo-restAPI/pkg/repository"
-	"github.com/deevins/todo-restAPI/pkg/service"
+	"github.com/deevins/todo-restAPI/internal/handler"
+	repository2 "github.com/deevins/todo-restAPI/internal/repository"
+	"github.com/deevins/todo-restAPI/internal/service"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
@@ -14,6 +14,8 @@ import (
 
 // TODO: change logrus lib to uber logger(zap)
 // https://github.com/uber-go/zap
+// TODO: add unique id generation for TODO-ITEM and TODO-LIST
+
 func main() {
 	logrus.SetFormatter(&logrus.JSONFormatter{PrettyPrint: true})
 	if err := initConfig(); err != nil {
@@ -27,7 +29,7 @@ func main() {
 
 	port := viper.GetString("port")
 
-	db, err := repository.NewPostgresDB(repository.Config{
+	db, err := repository2.NewPostgresDB(repository2.Config{
 		Host:     viper.GetString("db.host"),
 		Port:     viper.GetString("db.port"),
 		Username: viper.GetString("db.username"),
@@ -39,7 +41,7 @@ func main() {
 		logrus.Fatalf("failed to initialize DB, %s", err)
 	}
 
-	repos := repository.NewRepository(db)
+	repos := repository2.NewRepository(db)
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
 

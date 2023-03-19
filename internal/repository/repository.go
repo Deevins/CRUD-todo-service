@@ -18,8 +18,13 @@ type TodoList interface {
 	Update(userID int, id int, input entity.UpdateListInput) error
 }
 
-type TodoItem interface{}
+type TodoItem interface {
+	Create(listID int, item entity.TodoItem) (int, error)
+	GetAll(userID, listID int) ([]entity.TodoItem, error)
+	GetItemByID(userID, itemID int) (entity.TodoItem, error)
+}
 
+// TODO: change fmt.Sprintf to sql placeholders(vs sql injections)
 type Repository struct {
 	Authorization
 	TodoList
@@ -30,6 +35,6 @@ func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Authorization: NewAuthPostgres(db),
 		TodoList:      NewTodoListPostgres(db),
-		TodoItem:      nil,
+		TodoItem:      NewTodoItemPostgres(db),
 	}
 }
