@@ -1,12 +1,11 @@
 package handler
 
 import (
-	"fmt"
 	entity "github.com/deevins/todo-restAPI/internal/entities"
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
 	"net/http"
-	"strconv"
 )
 
 func (h *Handler) createItem(ctx *gin.Context) {
@@ -15,11 +14,7 @@ func (h *Handler) createItem(ctx *gin.Context) {
 		return
 	}
 
-	listID, err := strconv.Atoi(ctx.Param("id"))
-	if err != nil {
-		NewErrorResponse(ctx, http.StatusInternalServerError, "invalid id param")
-		return
-	}
+	listID := uuid.Must(uuid.FromString(ctx.Param("id")))
 
 	var input entity.TodoItem
 	if err := ctx.BindJSON(&input); err != nil {
@@ -42,12 +37,7 @@ func (h *Handler) getAllItems(ctx *gin.Context) {
 		return
 	}
 
-	listID, err := strconv.Atoi(ctx.Param("id"))
-	if err != nil {
-		NewErrorResponse(ctx, http.StatusInternalServerError, "invalid id param")
-		fmt.Println("error in getAllItems method")
-		return
-	}
+	listID := uuid.Must(uuid.FromString(ctx.Param("id")))
 
 	items, err := h.services.TodoItem.GetAll(userID, listID)
 	if err != nil {
@@ -66,11 +56,7 @@ func (h *Handler) getItemById(ctx *gin.Context) {
 		return
 
 	}
-
-	itemID, err := strconv.Atoi(ctx.Param("id"))
-	if err != nil {
-		NewErrorResponse(ctx, http.StatusBadRequest, "incorrect item ID")
-	}
+	itemID := uuid.Must(uuid.FromString(ctx.Param("id")))
 
 	item, err := h.services.TodoItem.GetItemByID(userID, itemID)
 	if err != nil {

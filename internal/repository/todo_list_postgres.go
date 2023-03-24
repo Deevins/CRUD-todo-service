@@ -4,6 +4,7 @@ import (
 	"fmt"
 	entity "github.com/deevins/todo-restAPI/internal/entities"
 	"github.com/jmoiron/sqlx"
+	uuid "github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
 	"strings"
 )
@@ -18,19 +19,21 @@ func NewTodoListPostgres(db *sqlx.DB) *TodoListPostgres {
 	}
 }
 
-func (r *TodoListPostgres) CreateList(userID int, list entity.TodoList) (int, error) {
+func (r *TodoListPostgres) Create(userID uuid.UUID, list entity.TodoList) (uuid.UUID, error) {
 	tx, err := r.db.Begin()
 
 	if err != nil {
-		return 0, err
+		return Nil, err
 	}
-	var id int
+
+	id := uuid.NewV4()
+
 	createListQuery := fmt.Sprintf("INSERT INTO %s (title,description) VALUES ($1, $2) RETURNING ID", todoListsTable)
 	row := tx.QueryRow(createListQuery, list.Title, list.Description)
 
 	if err := row.Scan(&id); err != nil {
 		tx.Rollback()
-		return 0, err
+		return Nil, err
 	}
 
 	createUsersListQuery := fmt.Sprintf("INSERT INTO %s (user_id, list_id) VALUES ($1, $2) RETURNING ID", usersListsTable)
@@ -39,13 +42,13 @@ func (r *TodoListPostgres) CreateList(userID int, list entity.TodoList) (int, er
 
 	if err != nil {
 		tx.Rollback()
-		return 0, err
+		return Nil, err
 	}
 
 	return id, tx.Commit()
 }
 
-func (r *TodoListPostgres) GetAll(userID int) ([]entity.TodoList, error) {
+func (r *TodoListPostgres) GetAll(userID uuid.UUID) ([]entity.TodoList, error) {
 	var lists []entity.TodoList
 	query := fmt.Sprintf("SELECT tl.id, tl.title, tl.description FROM %s tl INNER JOIN %s ul on tl.id = ul.list_id WHERE ul.user_id = $1",
 		todoListsTable, usersListsTable)
@@ -54,7 +57,7 @@ func (r *TodoListPostgres) GetAll(userID int) ([]entity.TodoList, error) {
 	return lists, err
 }
 
-func (r *TodoListPostgres) GetByID(userID, listID int) (entity.TodoList, error) {
+func (r *TodoListPostgres) GetByID(userID, listID uuid.UUID) (entity.TodoList, error) {
 	var list entity.TodoList
 	query := fmt.Sprintf("SELECT tl.id, tl.title, tl.description FROM %s tl "+
 		"INNER JOIN %s ul on tl.id = ul.list_id WHERE ul.user_id = $1 AND ul.list_id = $2",
@@ -64,7 +67,7 @@ func (r *TodoListPostgres) GetByID(userID, listID int) (entity.TodoList, error) 
 	return list, err
 }
 
-func (r *TodoListPostgres) Delete(userID, listID int) error {
+func (r *TodoListPostgres) Delete(userID, listID uuid.UUID) error {
 	query := fmt.Sprintf("DELETE FROM %s tl USING %s ul WHERE tl.id = ul.list_id AND ul.user_id=$1 AND ul.list_id=$2",
 		todoListsTable, usersListsTable)
 
@@ -73,7 +76,7 @@ func (r *TodoListPostgres) Delete(userID, listID int) error {
 	return err
 }
 
-func (r *TodoListPostgres) Update(userID int, listID int, input entity.UpdateListInput) error {
+func (r *TodoListPostgres) Update(userID, listID uuid.UUID, input entity.UpdateListInput) error {
 	setValues := make([]string, 0)
 	args := make([]interface{}, 0)
 	argsID := 1

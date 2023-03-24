@@ -3,28 +3,33 @@ package repository
 import (
 	"github.com/deevins/todo-restAPI/internal/entities"
 	"github.com/jmoiron/sqlx"
+	uuid "github.com/satori/go.uuid"
 )
 
+// Nil create zero-value for uuid to return this value in error
+var Nil = uuid.UUID{}
+
 type Authorization interface {
-	CreateUser(user entity.User) (int, error)
+	CreateUser(user entity.User) (uuid.UUID, error)
 	GetUser(username, password string) (entity.User, error)
 }
 
 type TodoList interface {
-	CreateList(userID int, list entity.TodoList) (int, error)
-	GetAll(userID int) ([]entity.TodoList, error)
-	GetByID(userID, listID int) (entity.TodoList, error)
-	Delete(userID, listID int) error
-	Update(userID int, id int, input entity.UpdateListInput) error
+	Create(userID uuid.UUID, list entity.TodoList) (uuid.UUID, error)
+	GetAll(userID uuid.UUID) ([]entity.TodoList, error)
+	GetByID(userID, listID uuid.UUID) (entity.TodoList, error)
+	Delete(userID, listID uuid.UUID) error
+	Update(userID, id uuid.UUID, input entity.UpdateListInput) error
 }
 
 type TodoItem interface {
-	Create(listID int, item entity.TodoItem) (int, error)
-	GetAll(userID, listID int) ([]entity.TodoItem, error)
-	GetItemByID(userID, itemID int) (entity.TodoItem, error)
+	Create(listID uuid.UUID, item entity.TodoItem) (uuid.UUID, error)
+	GetAll(userID, listID uuid.UUID) ([]entity.TodoItem, error)
+	GetItemByID(userID, itemID uuid.UUID) (entity.TodoItem, error)
 }
 
 // TODO: change fmt.Sprintf to sql placeholders(vs sql injections)
+
 type Repository struct {
 	Authorization
 	TodoList

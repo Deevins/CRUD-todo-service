@@ -4,6 +4,7 @@ import (
 	"fmt"
 	entity "github.com/deevins/todo-restAPI/internal/entities"
 	"github.com/jmoiron/sqlx"
+	uuid "github.com/satori/go.uuid"
 )
 
 type TodoItemPostgres struct {
@@ -14,12 +15,13 @@ func NewTodoItemPostgres(db *sqlx.DB) *TodoItemPostgres {
 	return &TodoItemPostgres{db: db}
 }
 
-func (r *TodoItemPostgres) Create(listID int, item entity.TodoItem) (int, error) {
+func (r *TodoItemPostgres) Create(listID uuid.UUID, item entity.TodoItem) (uuid.UUID, error) {
 	tx, err := r.db.Begin()
 	if err != nil {
-		return 0, err
+		return Nil, err
 	}
-	var itemID int
+	//var itemID int
+	itemID := uuid.NewV4()
 	createItemQuery := fmt.Sprintf("INSERT INTO %s (title, description) values ($1, $2) RETURNING ID", todoItemsTable)
 
 	row := tx.QueryRow(createItemQuery, item.Title, item.Description)
@@ -27,19 +29,19 @@ func (r *TodoItemPostgres) Create(listID int, item entity.TodoItem) (int, error)
 	err = row.Scan(&itemID)
 	if err != nil {
 		tx.Rollback()
-		return 0, err
+		return Nil, err
 	}
 
 	createListItemsQuery := fmt.Sprintf("INSERT INTO %s (list_id, item_id) values ($1, $2)", listsItemsTable)
 	_, err = tx.Exec(createListItemsQuery, listID, itemID)
 	if err != nil {
 		tx.Rollback()
-		return 0, err
+		return Nil, err
 	}
 	return itemID, tx.Commit()
 }
 
-func (r *TodoItemPostgres) GetAll(userID, listID int) ([]entity.TodoItem, error) {
+func (r *TodoItemPostgres) GetAll(userID, listID uuid.UUID) ([]entity.TodoItem, error) {
 	var items []entity.TodoItem
 
 	query := fmt.Sprintf(`SELECT ti.id, ti.title, ti.description, ti.done FROM %s ti INNER JOIN %s li on li.item_id = ti.id
@@ -53,7 +55,7 @@ func (r *TodoItemPostgres) GetAll(userID, listID int) ([]entity.TodoItem, error)
 	return items, nil
 }
 
-func (r *TodoItemPostgres) GetItemByID(userID, itemID int) (entity.TodoItem, error) {
+func (r *TodoItemPostgres) GetItemByID(userID, itemID uuid.UUID) (entity.TodoItem, error) {
 	var item entity.TodoItem
 
 	query := fmt.Sprintf(`SELECT ti.id, ti.title, ti.description, ti.done FROM %s ti INNER JOIN %s li on li.item_id = ti.id

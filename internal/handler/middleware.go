@@ -3,6 +3,7 @@ package handler
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 	"net/http"
 	"strings"
 )
@@ -40,17 +41,17 @@ func (h *Handler) userIdentity(ctx *gin.Context) {
 	ctx.Set(userCtx, userID)
 }
 
-func getUserID(ctx *gin.Context) (int, error) {
+func getUserID(ctx *gin.Context) (uuid.UUID, error) {
 	id, ok := ctx.Get(userCtx)
 	if !ok {
 		NewErrorResponse(ctx, http.StatusInternalServerError, "user id not found")
-		return 0, errors.New("user id not found")
+		return Nil, errors.New("user id not found")
 	}
 
-	idToInt, ok := id.(int) // trying to parse id from "any" to "int" type
+	idToInt, ok := id.(uuid.UUID) // trying to parse id from "any" to "int" type
 	if !ok {
 		NewErrorResponse(ctx, http.StatusInternalServerError, "user id is not of valid type")
-		return 0, errors.New("user id is not of valid type")
+		return Nil, errors.New("user id is not of valid type")
 	}
 	return idToInt, nil
 }

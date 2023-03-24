@@ -1,11 +1,10 @@
 package handler
 
 import (
-	"fmt"
 	entity "github.com/deevins/todo-restAPI/internal/entities"
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 	"net/http"
-	"strconv"
 )
 
 func (h *Handler) createList(ctx *gin.Context) {
@@ -20,7 +19,7 @@ func (h *Handler) createList(ctx *gin.Context) {
 	}
 
 	// call service method next
-	id, err := h.services.TodoList.CreateList(userID, input)
+	id, err := h.services.TodoList.Create(userID, input)
 	if err != nil {
 		NewErrorResponse(ctx, http.StatusInternalServerError, err.Error())
 	}
@@ -57,12 +56,7 @@ func (h *Handler) getListById(ctx *gin.Context) {
 		return
 	}
 
-	id, err := strconv.Atoi(ctx.Param("id"))
-	if err != nil {
-		NewErrorResponse(ctx, http.StatusInternalServerError, "invalid id param")
-		fmt.Println("error in getListById ", id, err)
-		return
-	}
+	id := uuid.Must(uuid.FromString(ctx.Param("id")))
 
 	list, err := h.services.TodoList.GetByID(userID, id)
 	if err != nil {
@@ -80,7 +74,7 @@ func (h *Handler) deleteList(ctx *gin.Context) {
 		return
 	}
 
-	id, err := strconv.Atoi(ctx.Param("id"))
+	id := uuid.Must(uuid.FromString(ctx.Param("id")))
 	if err != nil {
 		NewErrorResponse(ctx, http.StatusInternalServerError, "invalid id param")
 	}
@@ -103,11 +97,7 @@ func (h *Handler) updateList(ctx *gin.Context) {
 		return
 	}
 
-	id, err := strconv.Atoi(ctx.Param("id"))
-	if err != nil {
-		NewErrorResponse(ctx, http.StatusInternalServerError, "invalid id param")
-		return
-	}
+	id := uuid.Must(uuid.FromString(ctx.Param("id")))
 
 	var input entity.UpdateListInput
 
